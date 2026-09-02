@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:yellowchain:repo-bootstrap:1.0.0",
+  "title": "YellowChain Repository Bootstrap Schema",
+  "type": "object",
+  "required": ["repo_full_name", "visibility", "status"],
+  "properties": {
+    "repo_full_name": {"type": "string"},
+    "visibility": {"enum": ["public", "private"]},
+    "status": {"type": "string"},
+    "blocked_content": {"type": "array", "items": {"type": "string"}},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}}
+  }
+}

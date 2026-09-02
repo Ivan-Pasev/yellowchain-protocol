@@ -1,0 +1,29 @@
+openapi: 3.1.1
+info:
+  title: YellowChain Bulgaria MVP API
+  version: 0.2.0
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+  /v1/search:
+    get:
+      summary: Public market search
+      responses:
+        '200':
+          description: Search results
+  /v1/agents/{vertical}/ask:
+    post:
+      summary: Ask bounded vertical agent
+      parameters:
+        - name: vertical
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Agent answer
