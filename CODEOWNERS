@@ -1,0 +1,13 @@
+# YellowChain CODEOWNERS
+
+/docs/protocol/        @Ivan-Pasev
+/docs/legal/           @Ivan-Pasev
+/docs/gtm/             @Ivan-Pasev
+/schemas/              @Ivan-Pasev
+/openapi/              @Ivan-Pasev
+/sql/                  @Ivan-Pasev
+/.github/workflows/    @Ivan-Pasev
+/infra/                @Ivan-Pasev
+/apps/admin/           @Ivan-Pasev
+/packages/agents/      @Ivan-Pasev
+/packages/authz/       @Ivan-Pasev
