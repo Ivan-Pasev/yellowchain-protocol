@@ -14,7 +14,7 @@ jobs:
         run: test -f README.md
       - name: Secret scan placeholder
         run: |
-          ! grep -R "sk-" . --exclude-dir=.git || exit 1
+          ! grep -R "sk-" . --exclude-dir=.git --exclude='validate.yml' || exit 1
       - name: Claim boundary placeholder
         run: |
           ! grep -R "production ready" README.md docs 2>/dev/null || exit 1
