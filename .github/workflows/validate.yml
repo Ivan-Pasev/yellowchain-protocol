@@ -1,0 +1,20 @@
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Repository sanity
+        run: test -f README.md
+      - name: Secret scan placeholder
+        run: |
+          ! grep -R "sk-" . --exclude-dir=.git || exit 1
+      - name: Claim boundary placeholder
+        run: |
+          ! grep -R "production ready" README.md docs 2>/dev/null || exit 1
