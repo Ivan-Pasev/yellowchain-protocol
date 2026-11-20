@@ -92,3 +92,27 @@ for (const [name, value] of Object.entries({
   assert.equal(checkIssuerShape(tampered), false, name + ' missing required authority field');
 }
 console.log('YC43_ISSUER_WIRE_SHAPE_CONTRACT_PASS: 6 cases');
+const lifecycleSchema = load('schemas/issuer/lifecycle-event.synthetic.schema.json');
+const validateLifecycle = ajv.compile(lifecycleSchema);
+const registration = {
+  event_id: 'synthetic:event:1', sequence: 1, previous_hash: 'GENESIS',
+  event_hash: 'a'.repeat(64), action: 'issuer.register',
+  subject_id: 'synthetic:issuer:alpha', issuer_id: 'synthetic:issuer:alpha',
+  actor_id: 'synthetic:gov', actor_role: 'registry_governor',
+  authorization_ref: 'synthetic:grant:gov', policy_version: 'synthetic:policy:0.1',
+  evidence_refs: ['synthetic:evidence:1'], occurred_at: '2026-11-20T09:00:00Z',
+  key_fingerprint: 'sha256:' + 'b'.repeat(64),
+};
+const checkLifecycle = (data, expected, name) =>
+  assert.equal(validateLifecycle(data), expected, name + ': ' + JSON.stringify(validateLifecycle.errors));
+checkLifecycle(registration, true, 'issuer registration shape');
+checkLifecycle({ ...registration, actor_role: 'security_custodian' }, false, 'role mismatch');
+const missingKey = clone(registration);
+delete missingKey.key_fingerprint;
+checkLifecycle(missingKey, false, 'registration missing key');
+const extraneousKey = { ...registration, action: 'issuer.activate' };
+checkLifecycle(extraneousKey, false, 'key included in non-rotation action');
+checkLifecycle({ ...registration, evidence_refs: [] }, false, 'evidence absent');
+checkLifecycle({ ...registration, event_hash: 'not-a-digest' }, false, 'malformed event digest');
+console.log('YC44_LIFECYCLE_EVENT_SHAPE_CONTRACT_PASS: 6 cases');
+
