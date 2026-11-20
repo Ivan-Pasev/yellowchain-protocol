@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yellowchain.org/protocol/0.1/schemas/issuer/offline-trust-policy.synthetic.schema.json",
+  "title": "YC-48 synthetic root-signed trust policy envelope (shape only)",
+  "description": "Actual root signatures, offline pin, freshness, monotonic version, exact bound retained checkpoint and witness operator consistency are checked by the runtime, not this schema. No real independence or public authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "origin",
+    "policy_version",
+    "previous_policy_digest",
+    "anchor_digest",
+    "trust_epoch_digest",
+    "issued_at",
+    "expires_at",
+    "root_threshold",
+    "root_keys",
+    "operator_claims",
+    "boundary",
+    "public_claim_allowed",
+    "agent_action_allowed",
+    "old_root_signatures",
+    "new_root_signatures"
+  ],
+  "properties": {
+    "version": {
+      "const": "yc-trust-policy/0.1.0"
+    },
+    "origin": {
+      "const": "synthetic:yellowchain:BG:issuer-registry"
+    },
+    "policy_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "previous_policy_digest": {
+      "oneOf": [
+        {
+          "const": "GENESIS"
+        },
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      ]
+    },
+    "anchor_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "trust_epoch_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "root_threshold": {
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 16
+    },
+    "root_keys": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key_id",
+          "public_key_pem"
+        ],
+        "properties": {
+          "key_id": {
+            "type": "string",
+            "pattern": "^synthetic:root:[A-Za-z0-9_-]+$"
+          },
+          "public_key_pem": {
+            "type": "string",
+            "minLength": 20
+          }
+        }
+      }
+    },
+    "operator_claims": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "witness_id",
+          "operator_id",
+          "custody_evidence_ref",
+          "independence_review"
+        ],
+        "properties": {
+          "witness_id": {
+            "type": "string",
+            "pattern": "^synthetic:witness:[A-Za-z0-9_-]+$"
+          },
+          "operator_id": {
+            "type": "string",
+            "pattern": "^synthetic:operator:[A-Za-z0-9_-]+$"
+          },
+          "custody_evidence_ref": {
+            "type": "string",
+            "pattern": "^synthetic:evidence:[A-Za-z0-9_-]+$"
+          },
+          "independence_review": {
+            "const": "self-declared-unverified"
+          }
+        }
+      }
+    },
+    "boundary": {
+      "const": "synthetic-policy-not-public-authority"
+    },
+    "public_claim_allowed": {
+      "const": false
+    },
+    "agent_action_allowed": {
+      "const": false
+    },
+    "old_root_signatures": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key_id",
+          "signature_b64url"
+        ],
+        "properties": {
+          "key_id": {
+            "type": "string",
+            "pattern": "^synthetic:root:[A-Za-z0-9_-]+$"
+          },
+          "signature_b64url": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$"
+          }
+        }
+      }
+    },
+    "new_root_signatures": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key_id",
+          "signature_b64url"
+        ],
+        "properties": {
+          "key_id": {
+            "type": "string",
+            "pattern": "^synthetic:root:[A-Za-z0-9_-]+$"
+          },
+          "signature_b64url": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$"
+          }
+        }
+      }
+    }
+  }
+}

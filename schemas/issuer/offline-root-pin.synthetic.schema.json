@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yellowchain.org/protocol/0.1/schemas/issuer/offline-root-pin.synthetic.schema.json",
+  "title": "YC-48 synthetic offline root pin (out-of-band envelope shape only)",
+  "description": "Offline authorization ref and digest supplied by a separately authenticated carrier; self-declared refs do not establish authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "origin",
+    "manifest_digest",
+    "root_key_fingerprints",
+    "root_threshold",
+    "authorization_ref"
+  ],
+  "properties": {
+    "origin": {
+      "const": "synthetic:yellowchain:BG:issuer-registry"
+    },
+    "manifest_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "root_key_fingerprints": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key_id",
+          "fingerprint"
+        ],
+        "properties": {
+          "key_id": {
+            "type": "string",
+            "pattern": "^synthetic:root:[A-Za-z0-9_-]+$"
+          },
+          "fingerprint": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "root_threshold": {
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 16
+    },
+    "authorization_ref": {
+      "type": "string",
+      "pattern": "^synthetic:offline-approved:[A-Za-z0-9_-]+$"
+    }
+  }
+}

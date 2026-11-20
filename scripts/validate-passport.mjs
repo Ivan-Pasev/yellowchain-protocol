@@ -204,3 +204,58 @@ checkSplitView({...splitViewFixture,public_claim_allowed:true},false,'business c
 checkSplitView({...splitViewFixture,left:{...splitViewFixture.left,checkpoint:{...checkpoint,witness_signatures:[]}}},false,'unsigned-view shape');
 checkSplitView({...splitViewFixture,boundary:'production-certified'},false,'production overclaim');
 console.log('YC47_SPLIT_VIEW_SHAPE_PASS: 8 cases; runtime must verify two forks and predecessor');
+
+const yc48PolicySchema = load('schemas/issuer/offline-trust-policy.synthetic.schema.json');
+const yc48PinSchema = load('schemas/issuer/offline-root-pin.synthetic.schema.json');
+const validateYc48Policy = ajv.compile(yc48PolicySchema);
+const validateYc48Pin = ajv.compile(yc48PinSchema);
+const yc48Fixture = {
+  version:'yc-trust-policy/0.1.0',
+  origin:'synthetic:yellowchain:BG:issuer-registry',
+  policy_version:1,previous_policy_digest:'GENESIS',
+  anchor_digest:'a'.repeat(64),trust_epoch_digest:'b'.repeat(64),
+  issued_at:'2026-11-20T09:15:00Z',expires_at:'2026-12-01T09:15:00Z',
+  root_threshold:2,root_keys:[
+    {key_id:'synthetic:root:r1',public_key_pem:'-----BEGIN PUBLIC KEY----- synthetic shape r1'},
+    {key_id:'synthetic:root:r2',public_key_pem:'-----BEGIN PUBLIC KEY----- synthetic shape r2'},
+    {key_id:'synthetic:root:r3',public_key_pem:'-----BEGIN PUBLIC KEY----- synthetic shape r3'},
+  ],
+  operator_claims:[1,2,3].map(i=>({
+    witness_id:'synthetic:witness:'+i,operator_id:'synthetic:operator:'+i,
+    custody_evidence_ref:'synthetic:evidence:operator'+i,
+    independence_review:'self-declared-unverified',
+  })),
+  boundary:'synthetic-policy-not-public-authority',
+  public_claim_allowed:false,agent_action_allowed:false,
+  old_root_signatures:[],
+  new_root_signatures:[
+    {key_id:'synthetic:root:r1',signature_b64url:'shapeOnlyR1'},
+    {key_id:'synthetic:root:r2',signature_b64url:'shapeOnlyR2'},
+  ],
+};
+const yc48Pin = {
+  origin:yc48Fixture.origin,manifest_digest:'c'.repeat(64),
+  root_threshold:2,authorization_ref:'synthetic:offline-approved:research',
+  root_key_fingerprints:[
+    {key_id:'synthetic:root:r1',fingerprint:'d'.repeat(64)},
+    {key_id:'synthetic:root:r2',fingerprint:'e'.repeat(64)},
+    {key_id:'synthetic:root:r3',fingerprint:'f'.repeat(64)},
+  ],
+};
+const yc48Shape = (candidate,expected,name)=>assert.equal(
+  validateYc48Policy(candidate),expected,name+': '+JSON.stringify(validateYc48Policy.errors));
+const yc48PinShape = (candidate,expected,name)=>assert.equal(
+  validateYc48Pin(candidate),expected,name+': '+JSON.stringify(validateYc48Pin.errors));
+yc48Shape(yc48Fixture,true,'signed offline root policy');
+yc48Shape({...yc48Fixture,origin:'live:BG'},false,'synthetic origin only');
+yc48Shape({...yc48Fixture,root_threshold:1},false,'root threshold at least 2');
+yc48Shape({...yc48Fixture,old_root_signatures:[{key_id:'impostor',signature_b64url:'a'}]},false,'root signer shape');
+yc48Shape({...yc48Fixture,new_root_signatures:[]},false,'new signing quorum shape');
+yc48Shape({...yc48Fixture,operator_claims:[{...yc48Fixture.operator_claims[0],independence_review:'certified'}]},false,'unverified operator only');
+yc48Shape({...yc48Fixture,public_claim_allowed:true},false,'no public authority promotion');
+yc48Shape({...yc48Fixture,agent_action_allowed:true},false,'no agent action promotion');
+yc48Shape({...yc48Fixture,previous_policy_digest:'fake'},false,'policy digest chain');
+yc48PinShape(yc48Pin,true,'offline pin wire shape');
+yc48PinShape({...yc48Pin,authorization_ref:'self-verified'},false,'offline carrier requirement');
+yc48PinShape({...yc48Pin,manifest_digest:'nothex'},false,'root manifest fingerprint');
+console.log('YC48_OFFLINE_ROOT_POLICY_SHAPE_PASS: 12 cases; runtime verifies offline pin, cryptographic quorums, time and chain');
