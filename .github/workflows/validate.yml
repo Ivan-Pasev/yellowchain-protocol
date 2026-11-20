@@ -12,6 +12,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Repository sanity
         run: test -f README.md
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install contract validator
+        run: npm install --ignore-scripts --no-package-lock
+      - name: JSON Schema 2020-12 positive and adversarial fixtures
+        run: npm run test:passport
       - name: Secret scan placeholder
         run: |
           ! grep -R "sk-" . --exclude-dir=.git --exclude='validate.yml' || exit 1
