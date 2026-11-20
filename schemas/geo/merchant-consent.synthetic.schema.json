@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yellowchain.org/protocol/0.1/schemas/geo/merchant-consent.synthetic.schema.json",
+  "title": "YC-50 scoped synthetic merchant-submitted snapshot consent",
+  "description": "Signature shape only; runtime checks offline-pinned synthetic key, freshness, scope, revocations and passport association. Does not establish real website ownership.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "grant_id",
+    "business_id",
+    "jurisdiction",
+    "merchant_key_id",
+    "consent_ref",
+    "source_provider",
+    "source_hostname",
+    "scope",
+    "data_class",
+    "issued_at",
+    "expires_at",
+    "owner_approval_ref",
+    "live_crawl_allowed",
+    "cloud_account_access_allowed",
+    "publication_allowed",
+    "public_claim_allowed",
+    "agent_action_allowed",
+    "signature_b64url"
+  ],
+  "properties": {
+    "version": {
+      "const": "yc-merchant-consent/0.1.0"
+    },
+    "grant_id": {
+      "type": "string",
+      "pattern": "^synthetic:grant:[A-Za-z0-9_-]{4,80}$"
+    },
+    "business_id": {
+      "type": "string",
+      "pattern": "^yc:business:BG:[A-Za-z0-9_-]{3,128}$"
+    },
+    "jurisdiction": {
+      "const": "BG"
+    },
+    "merchant_key_id": {
+      "type": "string",
+      "pattern": "^synthetic:owner:[A-Za-z0-9_-]+$"
+    },
+    "consent_ref": {
+      "type": "string",
+      "pattern": "^synthetic:consent:[A-Za-z0-9_-]+$"
+    },
+    "source_provider": {
+      "const": "synthetic_merchant_export"
+    },
+    "source_hostname": {
+      "type": "string",
+      "pattern": "(^|\\.)(example|test)$"
+    },
+    "scope": {
+      "const": "geo.snapshot.submit"
+    },
+    "data_class": {
+      "const": "synthetic_public_business_page"
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "owner_approval_ref": {
+      "type": "string",
+      "pattern": "^synthetic:evidence:[A-Za-z0-9_-]+$"
+    },
+    "live_crawl_allowed": {
+      "const": false
+    },
+    "cloud_account_access_allowed": {
+      "const": false
+    },
+    "publication_allowed": {
+      "const": false
+    },
+    "public_claim_allowed": {
+      "const": false
+    },
+    "agent_action_allowed": {
+      "const": false
+    },
+    "signature_b64url": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+$"
+    }
+  }
+}

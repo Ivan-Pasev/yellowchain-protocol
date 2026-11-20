@@ -295,3 +295,52 @@ yc49Check(yc49ReceiptSchema,{...yc49Receipt,authorization_verified:true},false,'
 yc49Check(yc49ReceiptSchema,{...yc49Receipt,ai_citation_verified:true},false,'citation proof overclaim');
 yc49Check(yc49ReceiptSchema,{...yc49Receipt,signals:[{...yc49Receipt.signals[0],status:'certified'}]},false,'invented signal outcome');
 console.log('YC49_GEO_READINESS_SHAPE_PASS: 12 cases; runtime checks synthetic host and signal provenance');
+
+const yc50ConsentCheck=ajv.compile(load('schemas/geo/merchant-consent.synthetic.schema.json'));
+const yc50PinCheck=ajv.compile(load('schemas/geo/merchant-pin.synthetic.schema.json'));
+const yc50IntakeCheck=ajv.compile(load('schemas/geo/snapshot-intake.synthetic.schema.json'));
+const yc50Consent={
+ version:'yc-merchant-consent/0.1.0',grant_id:'synthetic:grant:fixture01',
+ business_id:yc49Snapshot.business_id,jurisdiction:'BG',
+ merchant_key_id:'synthetic:owner:fixture',consent_ref:yc49Snapshot.consent_ref,
+ source_provider:'synthetic_merchant_export',source_hostname:'merchant.example',
+ scope:'geo.snapshot.submit',data_class:'synthetic_public_business_page',
+ issued_at:'2026-11-20T09:00:00Z',expires_at:'2026-11-21T09:00:00Z',
+ owner_approval_ref:'synthetic:evidence:merchant1',
+ live_crawl_allowed:false,cloud_account_access_allowed:false,
+ publication_allowed:false,public_claim_allowed:false,agent_action_allowed:false,
+ signature_b64url:'signedShapeOnly'
+};
+const yc50Pin={
+ business_id:yc50Consent.business_id,merchant_key_id:yc50Consent.merchant_key_id,
+ merchant_public_key_pem:'-----BEGIN PUBLIC KEY----- shape-only',
+ key_fingerprint:'a'.repeat(64),
+ authorization_ref:'synthetic:offline-owner-approved:fixture'
+};
+const yc50Intake={
+ version:'yc-snapshot-intake/0.1.0',
+ boundary:'synthetic-manual-export-not-live-merchant-authorization',
+ business_id:yc50Consent.business_id,grant_id:yc50Consent.grant_id,
+ grant_digest:'b'.repeat(64),snapshot_digest:'c'.repeat(64),
+ accepted_at:'2026-11-20T10:00:00Z',
+ readiness:yc49Receipt,operator_ownership_verified:false,
+ provider_credentials_used:false,live_crawl_performed:false,
+ public_claim_allowed:false,agent_action_allowed:false
+};
+const yc50Check=(fn,value,expected,label)=>assert.equal(fn(value),expected,label+': '+JSON.stringify(fn.errors));
+yc50Check(yc50ConsentCheck,yc50Consent,true,'signed synthetic merchant export shape');
+yc50Check(yc50ConsentCheck,{...yc50Consent,source_provider:'google_drive'},false,'no OAuth provider impersonation');
+yc50Check(yc50ConsentCheck,{...yc50Consent,source_provider:'cloudflare_zone'},false,'no Cloudflare token pretense');
+yc50Check(yc50ConsentCheck,{...yc50Consent,live_crawl_allowed:true},false,'no crawler permission');
+yc50Check(yc50ConsentCheck,{...yc50Consent,cloud_account_access_allowed:true},false,'no cloud access permission');
+yc50Check(yc50ConsentCheck,{...yc50Consent,publication_allowed:true},false,'no public publish');
+yc50Check(yc50ConsentCheck,{...yc50Consent,source_hostname:'evil.com'},false,'reserved host only');
+yc50Check(yc50PinCheck,yc50Pin,true,'synthetic owner pin shape');
+yc50Check(yc50PinCheck,{...yc50Pin,key_fingerprint:'bad'},false,'bad merchant key fingerprint');
+yc50Check(yc50PinCheck,{...yc50Pin,authorization_ref:'self_approved'},false,'no synthetic out-of-band assertion');
+yc50Check(yc50IntakeCheck,yc50Intake,true,'consent bound synthetic receipt');
+yc50Check(yc50IntakeCheck,{...yc50Intake,operator_ownership_verified:true},false,'no real owner claim');
+yc50Check(yc50IntakeCheck,{...yc50Intake,provider_credentials_used:true},false,'no provider credential claim');
+yc50Check(yc50IntakeCheck,{...yc50Intake,public_claim_allowed:true},false,'no assurance promotion');
+yc50Check(yc50IntakeCheck,{...yc50Intake,readiness:{...yc49Receipt,ai_citation_verified:true}},false,'nested GEO overclaim');
+console.log('YC50_SIGNED_SYNTHETIC_INTAKE_WIRE_PASS: 15 shape cases; runtime verifies pinned signatures and revocation');
