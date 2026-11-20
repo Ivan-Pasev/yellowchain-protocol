@@ -259,3 +259,39 @@ yc48PinShape(yc48Pin,true,'offline pin wire shape');
 yc48PinShape({...yc48Pin,authorization_ref:'self-verified'},false,'offline carrier requirement');
 yc48PinShape({...yc48Pin,manifest_digest:'nothex'},false,'root manifest fingerprint');
 console.log('YC48_OFFLINE_ROOT_POLICY_SHAPE_PASS: 12 cases; runtime verifies offline pin, cryptographic quorums, time and chain');
+
+const yc49SnapshotSchema = ajv.compile(load('schemas/geo/merchant-snapshot.synthetic.schema.json'));
+const yc49ReceiptSchema = ajv.compile(load('schemas/geo/readiness-receipt.synthetic.schema.json'));
+const yc49Snapshot = {
+ boundary:'synthetic-owner-supplied-geo-snapshot',
+ business_id:'yc:business:BG:yc_bg_synth_company_001',
+ page_url:'https://merchant.example/bg',observed_at:'2026-11-20T10:00:00Z',
+ consent_ref:'synthetic:consent:fixture',http_status:200,canonical_url:'https://merchant.example/bg',
+ html_lang:'bg-BG',robots_meta:'index,follow',googlebot_policy:'unknown',
+ oai_searchbot_policy:'unknown',gptbot_training_policy:'disallow',
+ visible_business_name:'Synthetic Bulgarian Company',
+ localbusiness_jsonld_name:'Synthetic Bulgarian Company'
+};
+const yc49Receipt = {
+ version:'yc-geo-readiness/0.1.0',boundary:'synthetic-diagnostic-not-search-placement',
+ jurisdiction:'BG',business_id:yc49Snapshot.business_id,snapshot_observed_at:yc49Snapshot.observed_at,
+ measured:{pass:3,blocked:0,review:1,unknown:2},
+ signals:[{id:'googlebot',status:'unknown',evidence:'not_observed',recommendation:'Check robots.txt'}],
+ authorization_verified:false,external_crawl_verified:false,ai_citation_verified:false,
+ organic_placement_guaranteed:false,public_claim_allowed:false,agent_action_allowed:false
+};
+const yc49Check = (fn,object,valid,label)=>assert.equal(fn(object),valid,
+ label+': '+JSON.stringify(fn.errors));
+yc49Check(yc49SnapshotSchema,yc49Snapshot,true,'synthetic owner snapshot');
+yc49Check(yc49SnapshotSchema,{...yc49Snapshot,boundary:'live'},false,'real site implication rejected');
+yc49Check(yc49SnapshotSchema,{...yc49Snapshot,consent_ref:'self_authorized'},false,'consent shape');
+yc49Check(yc49SnapshotSchema,{...yc49Snapshot,oai_searchbot_policy:'guaranteed'},false,'unknown crawler claim');
+yc49Check(yc49SnapshotSchema,{...yc49Snapshot,page_url:'http://merchant.example/bg'},false,'HTTP page rejected');
+yc49Check(yc49ReceiptSchema,yc49Receipt,true,'bounded readiness receipt');
+yc49Check(yc49ReceiptSchema,{...yc49Receipt,public_claim_allowed:true},false,'assurance overclaim');
+yc49Check(yc49ReceiptSchema,{...yc49Receipt,organic_placement_guaranteed:true},false,'ranking guarantee overclaim');
+yc49Check(yc49ReceiptSchema,{...yc49Receipt,external_crawl_verified:true},false,'crawl proof overclaim');
+yc49Check(yc49ReceiptSchema,{...yc49Receipt,authorization_verified:true},false,'consent proof overclaim');
+yc49Check(yc49ReceiptSchema,{...yc49Receipt,ai_citation_verified:true},false,'citation proof overclaim');
+yc49Check(yc49ReceiptSchema,{...yc49Receipt,signals:[{...yc49Receipt.signals[0],status:'certified'}]},false,'invented signal outcome');
+console.log('YC49_GEO_READINESS_SHAPE_PASS: 12 cases; runtime checks synthetic host and signal provenance');
