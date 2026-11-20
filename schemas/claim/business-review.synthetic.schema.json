@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yellowchain.org/protocol/0.1/schemas/claim/business-review.synthetic.schema.json",
+  "title": "YC51 independent synthetic business authority review",
+  "description": "Synthetic reviewer attestation is not proof of legal representative authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "challenge_id",
+    "tenant_id",
+    "business_id",
+    "hostname",
+    "site_observation_digest",
+    "decision",
+    "evidence_refs",
+    "reviewed_at",
+    "signature_b64url"
+  ],
+  "properties": {
+    "version": {
+      "const": "yc-business-review/0.1.0"
+    },
+    "tenant_id": {
+      "type": "string",
+      "pattern": "^synthetic:tenant:[A-Za-z0-9_-]{3,80}$"
+    },
+    "business_id": {
+      "type": "string",
+      "pattern": "^yc:business:BG:[A-Za-z0-9_-]{3,128}$"
+    },
+    "hostname": {
+      "type": "string",
+      "pattern": "(^|\\.)(example|test)$",
+      "maxLength": 253
+    },
+    "challenge_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f-]{36}$"
+    },
+    "site_observation_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "decision": {
+      "enum": [
+        "approved_synthetic_review",
+        "rejected_synthetic_review"
+      ]
+    },
+    "evidence_refs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^synthetic:evidence:[A-Za-z0-9:_-]{3,120}$"
+      }
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "signature_b64url": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{64,128}$"
+    }
+  }
+}
