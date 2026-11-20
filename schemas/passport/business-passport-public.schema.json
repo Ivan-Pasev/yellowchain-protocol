@@ -1,0 +1,430 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yellowchain.org/protocol/0.1/schemas/business-passport-public.schema.json",
+  "title": "YellowChain public Business Passport (candidate)",
+  "description": "Public, consent-scoped projection. It is not a legal registry certificate, quality rating, or grant of agent execution authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "business_id",
+    "jurisdiction",
+    "language",
+    "entity",
+    "provenance",
+    "publication",
+    "assurances",
+    "agent_capabilities"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "yc-business-passport/0.1.0"
+    },
+    "business_id": {
+      "type": "string",
+      "pattern": "^yc:business:[A-Z]{2}:[A-Za-z0-9_-]{3,128}$"
+    },
+    "jurisdiction": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$"
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "display_name",
+        "registry_references",
+        "establishments",
+        "brands"
+      ],
+      "properties": {
+        "kind": {
+          "const": "legal_entity"
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "legal_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "registry_references": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "establishments": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "brands": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "synthetic",
+        "source_category",
+        "evidence_refs",
+        "recorded_at"
+      ],
+      "properties": {
+        "synthetic": {
+          "type": "boolean"
+        },
+        "source_category": {
+          "enum": [
+            "synthetic",
+            "merchant_submission",
+            "public_registry",
+            "authorized_partner"
+          ]
+        },
+        "evidence_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publication_rights_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "correction_url",
+        "dispute_url"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "synthetic_preview",
+            "draft",
+            "published",
+            "suspended"
+          ]
+        },
+        "authority_event_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "published_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "correction_url": {
+          "type": "string",
+          "format": "uri-reference"
+        },
+        "dispute_url": {
+          "type": "string",
+          "format": "uri-reference"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "published"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "authority_event_id",
+              "published_at"
+            ]
+          }
+        }
+      ]
+    },
+    "assurances": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "assurance_id",
+          "tier",
+          "claim_scope",
+          "issuer_id",
+          "policy_version",
+          "evidence_refs",
+          "issued_at",
+          "expires_at",
+          "status",
+          "status_endpoint"
+        ],
+        "properties": {
+          "assurance_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tier": {
+            "enum": [
+              "YC-1",
+              "YC-2",
+              "YC-3",
+              "YC-4"
+            ]
+          },
+          "claim_scope": {
+            "type": "string",
+            "minLength": 1
+          },
+          "issuer_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "policy_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "issued_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "revoked",
+              "expired",
+              "superseded"
+            ]
+          },
+          "status_endpoint": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
+    },
+    "agent_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "capability_id",
+          "action_scope",
+          "grant_ref",
+          "expires_at",
+          "revocation_endpoint"
+        ],
+        "properties": {
+          "capability_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "action_scope": {
+            "type": "string",
+            "minLength": 1
+          },
+          "grant_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revocation_endpoint": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "provenance": {
+            "properties": {
+              "synthetic": {
+                "const": true
+              }
+            },
+            "required": [
+              "synthetic"
+            ]
+          }
+        },
+        "required": [
+          "provenance"
+        ]
+      },
+      "then": {
+        "properties": {
+          "provenance": {
+            "properties": {
+              "source_category": {
+                "const": "synthetic"
+              }
+            }
+          },
+          "publication": {
+            "properties": {
+              "status": {
+                "const": "synthetic_preview"
+              }
+            },
+            "not": {
+              "required": [
+                "authority_event_id"
+              ]
+            }
+          },
+          "assurances": {
+            "maxItems": 0
+          },
+          "agent_capabilities": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "publication": {
+            "properties": {
+              "status": {
+                "const": "published"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "publication"
+        ]
+      },
+      "then": {
+        "properties": {
+          "provenance": {
+            "required": [
+              "publication_rights_ref"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "provenance": {
+            "properties": {
+              "source_category": {
+                "const": "synthetic"
+              }
+            },
+            "required": [
+              "source_category"
+            ]
+          }
+        },
+        "required": [
+          "provenance"
+        ]
+      },
+      "then": {
+        "properties": {
+          "provenance": {
+            "properties": {
+              "synthetic": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "publication": {
+            "properties": {
+              "status": {
+                "not": {
+                  "const": "published"
+                }
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "publication"
+        ]
+      },
+      "then": {
+        "properties": {
+          "assurances": {
+            "maxItems": 0
+          },
+          "agent_capabilities": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ]
+}

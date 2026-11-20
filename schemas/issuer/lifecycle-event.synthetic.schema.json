@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yellowchain.org/protocol/0.1/schemas/lifecycle-event.synthetic.schema.json",
+  "title": "YC-44 synthetic issuer/credential lifecycle event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "sequence",
+    "previous_hash",
+    "event_hash",
+    "action",
+    "subject_id",
+    "issuer_id",
+    "actor_id",
+    "actor_role",
+    "authorization_ref",
+    "policy_version",
+    "evidence_refs",
+    "occurred_at"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "pattern": "^synthetic:event:"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "previous_hash": {
+      "type": "string",
+      "pattern": "^(GENESIS|[a-f0-9]{64})$"
+    },
+    "event_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "action": {
+      "enum": [
+        "issuer.register",
+        "issuer.activate",
+        "issuer.suspend",
+        "issuer.reinstate",
+        "issuer.revoke",
+        "issuer.rotate_key",
+        "credential.register",
+        "credential.activate",
+        "credential.suspend",
+        "credential.reinstate",
+        "credential.revoke"
+      ]
+    },
+    "subject_id": {
+      "type": "string",
+      "pattern": "^synthetic:(issuer|credential):[A-Za-z0-9_-]+$"
+    },
+    "issuer_id": {
+      "type": "string",
+      "pattern": "^synthetic:issuer:[A-Za-z0-9_-]+$"
+    },
+    "actor_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actor_role": {
+      "enum": [
+        "registry_governor",
+        "security_custodian",
+        "credential_status_officer"
+      ]
+    },
+    "authorization_ref": {
+      "type": "string",
+      "pattern": "^synthetic:"
+    },
+    "policy_version": {
+      "type": "string",
+      "pattern": "^synthetic:"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^synthetic:"
+      }
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "key_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "enum": [
+              "issuer.register",
+              "issuer.activate",
+              "issuer.reinstate",
+              "issuer.revoke",
+              "credential.register"
+            ]
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "then": {
+        "properties": {
+          "actor_role": {
+            "const": "registry_governor"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "enum": [
+              "issuer.suspend",
+              "issuer.rotate_key"
+            ]
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "then": {
+        "properties": {
+          "actor_role": {
+            "const": "security_custodian"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "enum": [
+              "credential.activate",
+              "credential.suspend",
+              "credential.reinstate",
+              "credential.revoke"
+            ]
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "then": {
+        "properties": {
+          "actor_role": {
+            "const": "credential_status_officer"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "enum": [
+              "issuer.register",
+              "issuer.rotate_key"
+            ]
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "then": {
+        "required": [
+          "key_fingerprint"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "key_fingerprint"
+          ]
+        }
+      }
+    }
+  ]
+}

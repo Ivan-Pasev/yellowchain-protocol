@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yellowchain.org/protocol/0.1/schemas/status-receipt.synthetic.schema.json",
+  "title": "YC-43 synthetic issuer-signed status receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "credential_id",
+    "issuer_id",
+    "state",
+    "observed_at",
+    "valid_until",
+    "signature_alg",
+    "signature_b64url"
+  ],
+  "properties": {
+    "version": {
+      "const": "yc-issuer-status/0.1.0"
+    },
+    "credential_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "issuer_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "active",
+        "revoked",
+        "suspended"
+      ]
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "signature_alg": {
+      "const": "Ed25519"
+    },
+    "signature_b64url": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+$"
+    }
+  }
+}
