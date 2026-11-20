@@ -177,3 +177,30 @@ checkTransition({...transitionFixture, new_witness_signatures:[]}, false, 'new q
 checkTransition({...transitionFixture, public_claim_allowed:true}, false, 'authority promotion impossible');
 checkTransition({...transitionFixture, issued_at:'not-time'}, false, 'timestamp required');
 console.log('YC46_TRUST_EPOCH_TRANSITION_SHAPE_PASS: 8 cases; runtime verifies signatures and CAS');
+
+const splitViewSchema = load('schemas/issuer/split-view.synthetic.schema.json');
+const validateSplitView = ajv.compile(splitViewSchema);
+const splitViewFixture = {
+  version: 'yc-split-view/0.1.0',
+  origin: 'synthetic:yellowchain:BG:issuer-registry',
+  sequence: 3,
+  predecessor_digest: 'a'.repeat(64),
+  left_checkpoint_digest: 'b'.repeat(64),
+  right_checkpoint_digest: 'c'.repeat(64),
+  left: {checkpoint, history:[registration]},
+  right: {checkpoint:{...checkpoint,event_head_hash:'d'.repeat(64)}, history:[registration]},
+  observed_at: '2026-11-20T10:00:00Z',
+  boundary: 'synthetic-split-view-not-public-issuance',
+  public_claim_allowed:false,agent_action_allowed:false,
+};
+const checkSplitView=(value,expected,label)=>assert.equal(
+  validateSplitView(value),expected,label+': '+JSON.stringify(validateSplitView.errors));
+checkSplitView(splitViewFixture,true,'synthetic fork envelope');
+checkSplitView({...splitViewFixture,origin:'live:BG'},false,'synthetic origin');
+checkSplitView({...splitViewFixture,predecessor_digest:'invalid'},false,'predecessor digest');
+checkSplitView({...splitViewFixture,left:{...splitViewFixture.left,history:[]}},false,'empty proof history');
+checkSplitView({...splitViewFixture,agent_action_allowed:true},false,'agent action promotion');
+checkSplitView({...splitViewFixture,public_claim_allowed:true},false,'business certificate promotion');
+checkSplitView({...splitViewFixture,left:{...splitViewFixture.left,checkpoint:{...checkpoint,witness_signatures:[]}}},false,'unsigned-view shape');
+checkSplitView({...splitViewFixture,boundary:'production-certified'},false,'production overclaim');
+console.log('YC47_SPLIT_VIEW_SHAPE_PASS: 8 cases; runtime must verify two forks and predecessor');
