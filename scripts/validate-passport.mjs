@@ -145,3 +145,35 @@ checkCheckpoint({ ...checkpoint, public_claim_allowed: true }, false, 'public as
 checkCheckpoint({ ...checkpoint, issued_at: 'not-a-date' }, false, 'invalid issued_at rejected');
 checkCheckpoint({ ...checkpoint, previous_checkpoint_digest: 'GENESIS' }, true, 'genesis reference shape accepted');
 console.log('YC45_CHECKPOINT_WIRE_SHAPE_PASS: 8 cases; runtime required for signature/quorum/replay');
+
+const trustTransitionSchema = load('schemas/issuer/trust-transition.synthetic.schema.json');
+const validateTransition = ajv.compile(trustTransitionSchema);
+const transitionFixture = {
+  version: 'yc-trust-transition/0.1.0',
+  origin: 'synthetic:yellowchain:BG:issuer-registry',
+  from_epoch: 1, to_epoch: 2,
+  from_epoch_digest: 'a'.repeat(64),
+  to_epoch_digest: 'b'.repeat(64),
+  anchor_checkpoint_digest: 'c'.repeat(64),
+  issued_at: '2026-11-20T09:40:00Z',
+  old_witness_signatures: [
+    {witness_id:'synthetic:witness:1',signature_b64url:'oldOne'},
+    {witness_id:'synthetic:witness:2',signature_b64url:'oldTwo'},
+  ],
+  new_witness_signatures: [
+    {witness_id:'synthetic:witness:2',signature_b64url:'newTwo'},
+    {witness_id:'synthetic:witness:4',signature_b64url:'newFour'},
+  ],
+};
+const checkTransition = (value, expected, label) =>
+  assert.equal(validateTransition(value), expected,
+    label + ': ' + JSON.stringify(validateTransition.errors));
+checkTransition(transitionFixture, true, 'synthetic dual quorum shape');
+checkTransition({...transitionFixture, origin:'live:yellowchain:BG'}, false, 'synthetic origin pinned');
+checkTransition({...transitionFixture, to_epoch:0}, false, 'invalid target epoch');
+checkTransition({...transitionFixture, anchor_checkpoint_digest:'invalid'}, false, 'anchor digest format');
+checkTransition({...transitionFixture, old_witness_signatures:[]}, false, 'old quorum shape');
+checkTransition({...transitionFixture, new_witness_signatures:[]}, false, 'new quorum shape');
+checkTransition({...transitionFixture, public_claim_allowed:true}, false, 'authority promotion impossible');
+checkTransition({...transitionFixture, issued_at:'not-time'}, false, 'timestamp required');
+console.log('YC46_TRUST_EPOCH_TRANSITION_SHAPE_PASS: 8 cases; runtime verifies signatures and CAS');

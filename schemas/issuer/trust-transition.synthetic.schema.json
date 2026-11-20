@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yellowchain.org/protocol/0.1/schemas/issuer/trust-transition.synthetic.schema.json",
+  "title": "YC-46 synthetic witness trust-epoch transition (shape only)",
+  "description": "Requires runtime dual-quorum signature, epoch digest and retained-anchor checks. Not an independently trusted certificate authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "origin",
+    "from_epoch",
+    "to_epoch",
+    "from_epoch_digest",
+    "to_epoch_digest",
+    "anchor_checkpoint_digest",
+    "issued_at",
+    "old_witness_signatures",
+    "new_witness_signatures"
+  ],
+  "properties": {
+    "version": {
+      "const": "yc-trust-transition/0.1.0"
+    },
+    "origin": {
+      "const": "synthetic:yellowchain:BG:issuer-registry"
+    },
+    "from_epoch": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "to_epoch": {
+      "type": "integer",
+      "minimum": 2
+    },
+    "from_epoch_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "to_epoch_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "anchor_checkpoint_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "old_witness_signatures": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "witness_id",
+          "signature_b64url"
+        ],
+        "properties": {
+          "witness_id": {
+            "type": "string",
+            "pattern": "^synthetic:witness:[A-Za-z0-9_-]+$"
+          },
+          "signature_b64url": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$"
+          }
+        }
+      }
+    },
+    "new_witness_signatures": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "witness_id",
+          "signature_b64url"
+        ],
+        "properties": {
+          "witness_id": {
+            "type": "string",
+            "pattern": "^synthetic:witness:[A-Za-z0-9_-]+$"
+          },
+          "signature_b64url": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$"
+          }
+        }
+      }
+    }
+  }
+}
