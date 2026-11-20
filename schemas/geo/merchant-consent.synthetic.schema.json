@@ -54,7 +54,7 @@
     },
     "source_hostname": {
       "type": "string",
-      "pattern": "(^|\\\\.)(example|test)$"
+      "pattern": "(^|\\.)(example|test)$"
     },
     "scope": {
       "const": "geo.snapshot.submit"
