@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yellowchain.org/protocol/0.1/schemas/claim/site-observation.synthetic.schema.json",
+  "title": "YC51 signed synthetic site observation",
+  "description": "Shape only. An offline-pinned observer signature is not DNS/HTTP site ownership proof.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "challenge_id",
+    "tenant_id",
+    "business_id",
+    "hostname",
+    "secret_digest",
+    "method",
+    "observed_at",
+    "evidence_ref",
+    "signature_b64url"
+  ],
+  "properties": {
+    "version": {
+      "const": "yc-site-observation/0.1.0"
+    },
+    "tenant_id": {
+      "type": "string",
+      "pattern": "^synthetic:tenant:[A-Za-z0-9_-]{3,80}$"
+    },
+    "business_id": {
+      "type": "string",
+      "pattern": "^yc:business:BG:[A-Za-z0-9_-]{3,128}$"
+    },
+    "hostname": {
+      "type": "string",
+      "pattern": "(^|\\.)(example|test)$",
+      "maxLength": 253
+    },
+    "challenge_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f-]{36}$"
+    },
+    "secret_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "method": {
+      "const": "synthetic_fixture_observer"
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidence_ref": {
+      "type": "string",
+      "pattern": "^synthetic:evidence:[A-Za-z0-9:_-]{3,120}$"
+    },
+    "signature_b64url": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{64,128}$"
+    }
+  }
+}
