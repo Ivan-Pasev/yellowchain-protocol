@@ -116,3 +116,32 @@ checkLifecycle({ ...registration, evidence_refs: [] }, false, 'evidence absent')
 checkLifecycle({ ...registration, event_hash: 'not-a-digest' }, false, 'malformed event digest');
 console.log('YC44_LIFECYCLE_EVENT_SHAPE_CONTRACT_PASS: 6 cases');
 
+
+const checkpointSchema = load('schemas/issuer/checkpoint.synthetic.schema.json');
+const validateCheckpoint = ajv.compile(checkpointSchema);
+const checkpoint = {
+  version: 'yc-checkpoint/0.1.0',
+  origin: 'synthetic:yellowchain:BG:issuer-registry',
+  sequence: 4,
+  event_head_hash: 'a'.repeat(64),
+  state_hash: 'b'.repeat(64),
+  previous_checkpoint_digest: 'c'.repeat(64),
+  issued_at: '2026-11-20T09:35:00Z',
+  log_signature_b64url: 'syntheticLogShapeOnly',
+  witness_signatures: [
+    { witness_id: 'synthetic:witness:1', signature_b64url: 'syntheticWitnessOne' },
+    { witness_id: 'synthetic:witness:2', signature_b64url: 'syntheticWitnessTwo' },
+  ],
+};
+const checkCheckpoint = (data, expected, label) =>
+  assert.equal(validateCheckpoint(data), expected,
+    label + ': ' + JSON.stringify(validateCheckpoint.errors));
+checkCheckpoint(checkpoint, true, 'synthetic witnessed checkpoint shape');
+checkCheckpoint({ ...checkpoint, sequence: 0 }, false, 'zero sequence rejected');
+checkCheckpoint({ ...checkpoint, event_head_hash: 'spoof' }, false, 'malformed event head rejected');
+checkCheckpoint({ ...checkpoint, witness_signatures: checkpoint.witness_signatures.slice(0, 1) }, false, 'one witness rejected');
+checkCheckpoint({ ...checkpoint, origin: 'live:yellowchain:BG:issuer-registry' }, false, 'public origin rejected');
+checkCheckpoint({ ...checkpoint, public_claim_allowed: true }, false, 'public assurance promotion rejected');
+checkCheckpoint({ ...checkpoint, issued_at: 'not-a-date' }, false, 'invalid issued_at rejected');
+checkCheckpoint({ ...checkpoint, previous_checkpoint_digest: 'GENESIS' }, true, 'genesis reference shape accepted');
+console.log('YC45_CHECKPOINT_WIRE_SHAPE_PASS: 8 cases; runtime required for signature/quorum/replay');
