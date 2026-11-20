@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yellowchain.org/protocol/0.1/schemas/assurance-envelope.synthetic.schema.json",
+  "title": "YC-43 synthetic signed assurance envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "credential_id",
+    "subject_business_id",
+    "issuer_id",
+    "tier",
+    "claim_scope",
+    "policy_version",
+    "evidence_refs",
+    "issued_at",
+    "expires_at",
+    "signature_alg",
+    "signature_b64url"
+  ],
+  "properties": {
+    "version": {
+      "const": "yc-assurance/0.1.0"
+    },
+    "credential_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subject_business_id": {
+      "type": "string",
+      "pattern": "^yc:business:BG:yc_bg_synth_[A-Za-z0-9_-]+$"
+    },
+    "issuer_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tier": {
+      "enum": [
+        "YC-1",
+        "YC-2",
+        "YC-3",
+        "YC-4"
+      ]
+    },
+    "claim_scope": {
+      "type": "string",
+      "minLength": 1
+    },
+    "policy_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "signature_alg": {
+      "const": "Ed25519"
+    },
+    "signature_b64url": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+$"
+    }
+  }
+}
