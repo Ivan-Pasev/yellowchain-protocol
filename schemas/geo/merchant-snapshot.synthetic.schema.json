@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yellowchain.org/protocol/0.1/schemas/geo/merchant-snapshot.synthetic.schema.json",
+  "title": "YC-49 owner-supplied synthetic GEO diagnostic snapshot",
+  "description": "Fixture-only, never crawl a merchant without separate authority. JSON shape does not prove owner consent or live page properties.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "boundary",
+    "business_id",
+    "page_url",
+    "observed_at",
+    "consent_ref",
+    "http_status",
+    "canonical_url",
+    "html_lang",
+    "robots_meta",
+    "googlebot_policy",
+    "oai_searchbot_policy",
+    "gptbot_training_policy",
+    "visible_business_name",
+    "localbusiness_jsonld_name"
+  ],
+  "properties": {
+    "boundary": {
+      "const": "synthetic-owner-supplied-geo-snapshot"
+    },
+    "business_id": {
+      "type": "string",
+      "pattern": "^yc:business:BG:[A-Za-z0-9_-]{3,128}$"
+    },
+    "page_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "consent_ref": {
+      "type": "string",
+      "pattern": "^synthetic:consent:[A-Za-z0-9_-]+$"
+    },
+    "http_status": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            200,
+            301,
+            302,
+            404,
+            410,
+            500,
+            503
+          ]
+        }
+      ]
+    },
+    "canonical_url": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "format": "uri"
+        }
+      ]
+    },
+    "html_lang": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "robots_meta": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "googlebot_policy": {
+      "enum": [
+        "allow",
+        "disallow",
+        "unknown"
+      ]
+    },
+    "oai_searchbot_policy": {
+      "enum": [
+        "allow",
+        "disallow",
+        "unknown"
+      ]
+    },
+    "gptbot_training_policy": {
+      "enum": [
+        "allow",
+        "disallow",
+        "unknown"
+      ]
+    },
+    "visible_business_name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "localbusiness_jsonld_name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}
