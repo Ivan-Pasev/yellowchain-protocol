@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yellowchain.org/protocol/0.1/schemas/claim/synthetic-verifier-pin.schema.json",
+  "title": "YC51 offline-pinned distinct verifier role",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "role",
+    "key_id",
+    "public_key_pem",
+    "key_fingerprint",
+    "authorization_ref"
+  ],
+  "properties": {
+    "role": {
+      "enum": [
+        "synthetic_site_observer",
+        "synthetic_business_reviewer"
+      ]
+    },
+    "key_id": {
+      "type": "string",
+      "pattern": "^synthetic:verifier:[A-Za-z0-9_-]+$"
+    },
+    "public_key_pem": {
+      "type": "string",
+      "minLength": 20
+    },
+    "key_fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "authorization_ref": {
+      "type": "string",
+      "pattern": "^synthetic:offline-review-approved:[A-Za-z0-9_-]+$"
+    }
+  }
+}

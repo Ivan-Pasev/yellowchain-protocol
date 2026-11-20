@@ -344,3 +344,72 @@ yc50Check(yc50IntakeCheck,{...yc50Intake,provider_credentials_used:true},false,'
 yc50Check(yc50IntakeCheck,{...yc50Intake,public_claim_allowed:true},false,'no assurance promotion');
 yc50Check(yc50IntakeCheck,{...yc50Intake,readiness:{...yc49Receipt,ai_citation_verified:true}},false,'nested GEO overclaim');
 console.log('YC50_SIGNED_SYNTHETIC_INTAKE_WIRE_PASS: 15 shape cases; runtime verifies pinned signatures and revocation');
+
+
+const yc51Site = ajv.compile(load('schemas/claim/site-observation.synthetic.schema.json'));
+const yc51Review = ajv.compile(load('schemas/claim/business-review.synthetic.schema.json'));
+const yc51Pin = ajv.compile(load('schemas/claim/synthetic-verifier-pin.schema.json'));
+const yc51State = ajv.compile(load('schemas/claim/site-owner-binding.synthetic.schema.json'));
+const yc51Time = '2026-11-20T10:00:00.000Z';
+const yc51Pending = {
+ version:'yc-site-owner-binding/0.1.0',boundary:'synthetic-two-proof-not-legal-ownership',
+ challenge_id:'ad5f1e42-ccf1-4210-97e1-a61b52f00111',
+ tenant_id:'synthetic:tenant:merchant001',
+ business_id:yc49Snapshot.business_id,jurisdiction:'BG',hostname:'merchant.example',
+ challenge_secret_digest:'a'.repeat(64),issued_at:yc51Time,
+ expires_at:'2026-11-20T10:10:00.000Z',
+ status:'pending',revision:0,site_observation_digest:null,site_observer_fingerprint:null,
+ site_observed_at:null,business_review_digest:null,reviewer_fingerprint:null,
+ business_reviewed_at:null,operator_ownership_verified:false,
+ public_claim_allowed:false,agent_action_allowed:false,
+};
+const yc51Observed = {...yc51Pending,status:'control_observed_synthetic',revision:1,
+ site_observation_digest:'b'.repeat(64),site_observer_fingerprint:'c'.repeat(64),
+ site_observed_at:'2026-11-20T10:01:00.000Z'};
+const yc51Bound = {...yc51Observed,status:'bound_synthetic_only',revision:2,
+ business_review_digest:'d'.repeat(64),reviewer_fingerprint:'e'.repeat(64),
+ business_reviewed_at:'2026-11-20T10:03:00.000Z'};
+const yc51SiteFixture = {
+ version:'yc-site-observation/0.1.0',challenge_id:yc51Pending.challenge_id,
+ tenant_id:yc51Pending.tenant_id,business_id:yc51Pending.business_id,
+ hostname:yc51Pending.hostname,secret_digest:yc51Pending.challenge_secret_digest,
+ method:'synthetic_fixture_observer',observed_at:'2026-11-20T10:01:00.000Z',
+ evidence_ref:'synthetic:evidence:site:fixture',signature_b64url:'a'.repeat(86),
+};
+const yc51ReviewFixture = {
+ version:'yc-business-review/0.1.0',challenge_id:yc51Pending.challenge_id,
+ tenant_id:yc51Pending.tenant_id,business_id:yc51Pending.business_id,
+ hostname:yc51Pending.hostname,site_observation_digest:yc51Observed.site_observation_digest,
+ decision:'approved_synthetic_review',
+ evidence_refs:['synthetic:evidence:company:fixture'],
+ reviewed_at:'2026-11-20T10:03:00.000Z',signature_b64url:'b'.repeat(86),
+};
+const yc51PinFixture = {
+ role:'synthetic_site_observer',key_id:'synthetic:verifier:observer',
+ public_key_pem:'-----BEGIN PUBLIC KEY----- shape-only',
+ key_fingerprint:'a'.repeat(64),
+ authorization_ref:'synthetic:offline-review-approved:fixture',
+};
+const yc51Check=(fn,val,expected,label)=>assert.equal(
+ fn(val),expected,label+': '+JSON.stringify(fn.errors));
+yc51Check(yc51State,yc51Pending,true,'initial challenge state');
+yc51Check(yc51State,yc51Observed,true,'site observation state');
+yc51Check(yc51State,yc51Bound,true,'two-proof synthetic binding state');
+yc51Check(yc51State,{...yc51Pending,public_claim_allowed:true},false,'forbid public claim');
+yc51Check(yc51State,{...yc51Pending,operator_ownership_verified:true},false,'forbid real owner claim');
+yc51Check(yc51State,{...yc51Pending,status:'bound_synthetic_only'},false,'forbid skip state');
+yc51Check(yc51State,{...yc51Observed,revision:0},false,'revision matches stage');
+yc51Check(yc51State,{...yc51Bound,agent_action_allowed:true},false,'forbid agent promotion');
+yc51Check(yc51State,{...yc51Bound,challenge_secret:'leaked'},false,'forbid secret storage');
+yc51Check(yc51Site,yc51SiteFixture,true,'signed site observation shape');
+yc51Check(yc51Site,{...yc51SiteFixture,method:'live_http'},false,'no real observation claim');
+yc51Check(yc51Site,{...yc51SiteFixture,hostname:'merchant.bg'},false,'reserved hostname');
+yc51Check(yc51Site,{...yc51SiteFixture,public_claim_allowed:true},false,'no extra promotion');
+yc51Check(yc51Review,yc51ReviewFixture,true,'synthetic independent review shape');
+yc51Check(yc51Review,{...yc51ReviewFixture,evidence_refs:[]},false,'review evidence required');
+yc51Check(yc51Review,{...yc51ReviewFixture,decision:'legally_verified'},false,'no verified business assertion');
+yc51Check(yc51Review,{...yc51ReviewFixture,tenant_id:'unbound'},false,'review tenant required');
+yc51Check(yc51Pin,yc51PinFixture,true,'offline reviewer pin shape');
+yc51Check(yc51Pin,{...yc51PinFixture,role:'merchant_owner'},false,'role restricted');
+yc51Check(yc51Pin,{...yc51PinFixture,authorization_ref:'self_approved'},false,'offline pin ref required');
+console.log('YC51_TWO_PROOF_WIRE_SHAPE_PASS: 20 cases; signature/CAS runtime tests required');
