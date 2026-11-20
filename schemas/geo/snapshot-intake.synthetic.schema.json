@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yellowchain.org/protocol/0.1/schemas/geo/snapshot-intake.synthetic.schema.json",
+  "title": "YC-50 synthetic merchant evidence intake audit receipt",
+  "description": "No raw credentials or real site data. Runtime digest proof does not certify real site ownership.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "boundary",
+    "business_id",
+    "grant_id",
+    "grant_digest",
+    "snapshot_digest",
+    "accepted_at",
+    "readiness",
+    "operator_ownership_verified",
+    "provider_credentials_used",
+    "live_crawl_performed",
+    "public_claim_allowed",
+    "agent_action_allowed"
+  ],
+  "properties": {
+    "version": {
+      "const": "yc-snapshot-intake/0.1.0"
+    },
+    "boundary": {
+      "const": "synthetic-manual-export-not-live-merchant-authorization"
+    },
+    "business_id": {
+      "type": "string",
+      "pattern": "^yc:business:BG:[A-Za-z0-9_-]{3,128}$"
+    },
+    "grant_id": {
+      "type": "string",
+      "pattern": "^synthetic:grant:[A-Za-z0-9_-]{4,80}$"
+    },
+    "grant_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "snapshot_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "accepted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "readiness": {
+      "$ref": "https://yellowchain.org/protocol/0.1/schemas/geo/readiness-receipt.synthetic.schema.json"
+    },
+    "operator_ownership_verified": {
+      "const": false
+    },
+    "provider_credentials_used": {
+      "const": false
+    },
+    "live_crawl_performed": {
+      "const": false
+    },
+    "public_claim_allowed": {
+      "const": false
+    },
+    "agent_action_allowed": {
+      "const": false
+    }
+  }
+}
