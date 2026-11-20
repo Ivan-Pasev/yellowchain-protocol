@@ -1,0 +1,26 @@
+{
+  "schema_version": "yc-business-passport/0.1.0",
+  "business_id": "yc:business:BG:yc_bg_synth_company_001",
+  "jurisdiction": "BG",
+  "language": "bg-BG",
+  "entity": {
+    "kind": "legal_entity",
+    "display_name": "Sofia Synthetic Manufacturing Cooperative",
+    "registry_references": [],
+    "establishments": [],
+    "brands": []
+  },
+  "provenance": {
+    "synthetic": true,
+    "source_category": "synthetic",
+    "evidence_refs": [],
+    "recorded_at": "2026-11-20T00:00:00Z"
+  },
+  "publication": {
+    "status": "published",
+    "correction_url": "/v1/companies/yc_bg_synth_company_001/correction",
+    "dispute_url": "/v1/companies/yc_bg_synth_company_001/dispute"
+  },
+  "assurances": [{ "tier": "YC-2", "claim_scope": "legal entity verified" }],
+  "agent_capabilities": [{ "action_scope": "checkout.execute" }]
+}
